@@ -17,5 +17,10 @@ const summed = content
 summed.sort((a, b) => a - b);
 summed.reverse();
 
-// 70764
-return summed[0];
+const task1 = () => {
+  return summed[0];
+};
+
+const task2 = () => {
+  return summed[0] + summed[1] + summed[2];
+};

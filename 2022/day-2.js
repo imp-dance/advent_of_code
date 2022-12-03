@@ -21,42 +21,35 @@ const list = [
 const rps = (p1, p2) => {
   scores.p1 += scoreMap[p1];
   scores.p2 += scoreMap[p2];
+  const p1wins = () => {
+    scores.p1 += scoreMap.win;
+    console.log("Player 1 wins");
+  };
+  const p2wins = () => {
+    scores.p2 += scoreMap.win;
+    console.log("Player 2 wins");
+  };
+  if (p1 === p2) {
+    scores.p1 += scoreMap.draw;
+    scores.p2 += scoreMap.draw;
+    return;
+  }
   if (p1 === "rock") {
-    if (p2 === "rock") {
-      scores.p1 += scoreMap.draw;
-      scores.p2 += scoreMap.draw;
-      ("Draw");
-    } else if (p2 === "paper") {
-      scores.p2 += scoreMap.win;
-      ("P2 wins");
-    } else {
-      scores.p1 += scoreMap.win;
-      ("P1 wins");
-    }
-  } else if (p1 === "paper") {
     if (p2 === "paper") {
-      scores.p1 += scoreMap.draw;
-      scores.p2 += scoreMap.draw;
-      ("Draw");
-    } else if (p2 === "scissors") {
-      scores.p2 += scoreMap.win;
-      ("P2 wins");
-    } else {
-      scores.p1 += scoreMap.win;
-      ("P1 wins");
+      return p2wins();
     }
-  } else {
+    return p1wins();
+  }
+  if (p1 === "paper") {
     if (p2 === "scissors") {
-      scores.p1 += scoreMap.draw;
-      scores.p2 += scoreMap.draw;
-      ("Draw");
-    } else if (p2 === "rock") {
-      scores.p2 += scoreMap.win;
-      ("P2 wins");
-    } else {
-      scores.p1 += scoreMap.win;
-      ("P1 wins");
+      return p2wins();
     }
+    return p1wins();
+  } else {
+    if (p2 === "rock") {
+      return p2wins();
+    }
+    return p1wins();
   }
 };
 

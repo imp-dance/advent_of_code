@@ -50,11 +50,7 @@ const part2 = () => {
   const commonLetters = groups.reduce((acc, group) => {
     let commonItem;
     alphabet.forEach((letter) => {
-      if (
-        group[0].includes(letter) &&
-        group[1].includes(letter) &&
-        group[2].includes(letter)
-      ) {
+      if (group.every((item) => item.includes(letter))) {
         commonItem = letter;
       }
     });

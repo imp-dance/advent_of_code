@@ -46,12 +46,10 @@ const parseLine = (line, i) => {
   const isFile = !isCommand && !isDirectory;
   if (isFile) {
     const [size, filename] = line.split(" ");
-    if (state.log) console.log("+ (file): ", filename);
     state.pointer.addChild(filename, parseInt(size, 10), "file");
   }
   if (isDirectory) {
     const [_, directory] = line.split(" ");
-    if (state.log) console.log("+ (dir): ", directory);
     state.pointer.addChild(directory, 0, "dir");
   }
   if (isCommand) {
@@ -62,22 +60,14 @@ const parseLine = (line, i) => {
         switch (arg) {
           case "/":
             state.pointer = root;
-            if (state.log)
-              console.log("Pointer @", state.pointer?.name);
             break;
           case "..":
-            if (state.log) console.log("$ cd .. ⤴");
             state.pointer = state.pointer.parent;
-            if (state.log)
-              console.log("Pointer @", state.pointer?.name);
             break;
           default:
-            if (state.log) console.log("$ cd", arg);
             state.pointer = state.pointer.children.find(
               (child) => child.name === arg
             );
-            if (state.log)
-              console.log("Pointer @", state.pointer?.name);
         }
         break;
       case "ls":
@@ -111,13 +101,7 @@ const part2 = () => {
   const fileSystemSize = 70000000;
   const requiredSpace = 30000000;
   const availableSpace = fileSystemSize - root.getSize();
-  const usedSpace = fileSystemSize - availableSpace;
   const neededSpace = requiredSpace - availableSpace;
-  console.log("Total fs: ", fileSystemSize);
-  console.log("Required: ", requiredSpace);
-  console.log("Availabl: ", availableSpace);
-  console.log("Used    : ", usedSpace, root.getSize());
-  console.log("Needed  : ", neededSpace);
   const options = [];
   const recursiveSearch = (node) => {
     if (node.type === "dir") {
@@ -134,8 +118,8 @@ const part2 = () => {
   return options.reduce((acc, option) => {
     if (option.getSize() < acc) return option.getSize();
     return acc;
-  }, 999999999);
+  }, Infinity);
 };
 
-// console.log(part1()); // 1447046
-console.log(part2());
+console.log(part1()); // 1447046
+console.log(part2()); // 578710

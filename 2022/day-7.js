@@ -24,13 +24,16 @@ class Node {
       0
     );
   }
+
+  getChild(name) {
+    return this.children.find((child) => child.name === name);
+  }
 }
 
 const root = new Node("/", 0, null, "dir");
 
 const state = {
   pointer: null,
-  isListing: false,
   log: false,
 };
 
@@ -48,26 +51,17 @@ const parseLine = (line, i) => {
   }
   if (isCommand) {
     const [_, command, arg] = line.split(" ");
-    switch (command) {
-      case "cd":
-        state.isListing = false;
-        switch (arg) {
-          case "/":
-            state.pointer = root;
-            break;
-          case "..":
-            state.pointer = state.pointer.parent;
-            break;
-          default:
-            state.pointer = state.pointer.children.find(
-              (child) => child.name === arg
-            );
-        }
-        break;
-      case "ls":
-        break;
-      default:
-        throw new Error(`Unknown command: ${command}`);
+    if (command === "cd") {
+      switch (arg) {
+        case "/":
+          state.pointer = root;
+          break;
+        case "..":
+          state.pointer = state.pointer.parent;
+          break;
+        default:
+          state.pointer = state.pointer.getChild(arg);
+      }
     }
   }
 };
@@ -93,15 +87,14 @@ const part1 = () => {
 
 const part2 = () => {
   const fileSystemSize = 70000000;
-  const requiredSpace = 30000000;
   const availableSpace = fileSystemSize - root.getSize();
-  const neededSpace = requiredSpace - availableSpace;
-  const options = [];
+  const requiredSpace = 30000000 - availableSpace;
+  const possibleOptions = [];
   const recursiveSearch = (node) => {
     if (node.type === "dir") {
       const size = node.getSize();
-      if (size >= neededSpace) {
-        options.push(node);
+      if (size >= requiredSpace) {
+        possibleOptions.push(node);
       }
     }
     if (node.children) {
@@ -109,10 +102,11 @@ const part2 = () => {
     }
   };
   root.children.forEach(recursiveSearch);
-  return options.reduce((acc, option) => {
-    if (option.getSize() < acc) return option.getSize();
-    return acc;
-  }, Infinity);
+  return possibleOptions.reduce(
+    (acc, option) =>
+      option.getSize() < acc ? option.getSize() : acc,
+    Infinity
+  );
 };
 
 console.log(part1()); // 1447046

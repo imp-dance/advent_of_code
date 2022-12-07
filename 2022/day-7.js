@@ -15,12 +15,6 @@ class Node {
     this.children.push(new Node(name, size, this, type));
   }
 
-  removeChild(name) {
-    this.children = this.children.filter(
-      (node) => node.name !== name
-    );
-  }
-
   getSize() {
     if (this.children.length === 0) {
       return this.size;

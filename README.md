@@ -18,7 +18,7 @@ My collection of Advent of Code solutions. Written in Javascript.
 With node installed:
 
 ```bash
-node 2022/day-3.js
+$ node 2022/day-3.js
 > 7742 # part 1 solution
 > 2276 # part 2 solution
 ```

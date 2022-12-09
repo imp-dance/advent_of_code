@@ -24,6 +24,8 @@ const parseLine = (acc, command) => {
   return acc;
 };
 
+const commands = lines.reduce(parseLine, []);
+
 const touchTail = (position) => {
   if (
     !state.tailTouched.find(
@@ -35,8 +37,6 @@ const touchTail = (position) => {
     state.tailTouched.push({ ...position });
   }
 };
-
-const commands = lines.reduce(parseLine, []);
 
 const followHead = () => {
   const topLeftCorner = {

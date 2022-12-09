@@ -161,7 +161,7 @@ const part2 = () => {
   state.head.vertical = 0;
   state.tailTouched = [{ horizontal: 0, vertical: 0 }];
 
-  const followHead = (i) => {
+  const followHead = () => {
     // Move the tail-head relative to the head.
     const bestMove = calculateBestMove(
       state.head,
@@ -182,9 +182,9 @@ const part2 = () => {
     touchTail(state.tails[8]);
   };
 
-  const move = (command, i) => {
+  const move = (command) => {
     moveHead(command);
-    followHead(i);
+    followHead();
   };
   commands.forEach(move);
 

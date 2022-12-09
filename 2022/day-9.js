@@ -1,28 +1,29 @@
 const { data } = require("./data/day-9");
 const lines = data.split("\n");
 
-const headPosition = {
-  horizontal: 0,
-  vertical: 0,
-};
-
-const tailPosition = {
+const initializer = {
   horizontal: 0,
   vertical: 0,
 };
 
 const state = {
-  tailTouched: [{ ...tailPosition }],
+  head: {
+    ...initializer,
+  },
+  tail: {
+    ...initializer,
+  },
+  tailTouched: [{ ...initializer }],
   tails: {
-    0: { ...tailPosition },
-    1: { ...tailPosition },
-    2: { ...tailPosition },
-    3: { ...tailPosition },
-    4: { ...tailPosition },
-    5: { ...tailPosition },
-    6: { ...tailPosition },
-    7: { ...tailPosition },
-    8: { ...tailPosition },
+    0: { ...initializer },
+    1: { ...initializer },
+    2: { ...initializer },
+    3: { ...initializer },
+    4: { ...initializer },
+    5: { ...initializer },
+    6: { ...initializer },
+    7: { ...initializer },
+    8: { ...initializer },
   },
 };
 
@@ -121,32 +122,33 @@ const calculateBestMove = (head, tail) => {
   return optimalNextStep;
 };
 
+const moveHead = (command) => {
+  switch (command) {
+    case "U":
+      state.head.vertical--;
+      break;
+    case "D":
+      state.head.vertical++;
+      break;
+    case "L":
+      state.head.horizontal--;
+      break;
+    case "R":
+      state.head.horizontal++;
+      break;
+  }
+};
+
 const part1 = () => {
   state.tailTouched = [{ horizontal: 0, vertical: 0 }];
   const followHead = () => {
-    const bestMove = calculateBestMove(
-      headPosition,
-      tailPosition
-    );
-    tailPosition.horizontal = bestMove.horizontal;
-    tailPosition.vertical = bestMove.vertical;
-    touchTail(tailPosition);
+    const bestMove = calculateBestMove(state.head, state.tail);
+    state.tail.horizontal = bestMove.horizontal;
+    state.tail.vertical = bestMove.vertical;
+    touchTail(state.tail);
   };
   const move = (command) => {
-    switch (command) {
-      case "U":
-        headPosition.vertical--;
-        break;
-      case "D":
-        headPosition.vertical++;
-        break;
-      case "L":
-        headPosition.horizontal--;
-        break;
-      case "R":
-        headPosition.horizontal++;
-        break;
-    }
+    moveHead(command);
     followHead();
   };
   commands.forEach((dir) => move(dir));
@@ -154,14 +156,14 @@ const part1 = () => {
 };
 
 const part2 = () => {
-  headPosition.horizontal = 0;
-  headPosition.vertical = 0;
+  state.head.horizontal = 0;
+  state.head.vertical = 0;
   state.tailTouched = [{ horizontal: 0, vertical: 0 }];
 
   const followHead = (i) => {
     // Move the tail-head relative to the head.
     const bestMove = calculateBestMove(
-      headPosition,
+      state.head,
       state.tails[0]
     );
     state.tails[0].horizontal = bestMove.horizontal;
@@ -180,20 +182,7 @@ const part2 = () => {
   };
 
   const move = (command, i) => {
-    switch (command) {
-      case "U":
-        headPosition.vertical--;
-        break;
-      case "D":
-        headPosition.vertical++;
-        break;
-      case "L":
-        headPosition.horizontal--;
-        break;
-      case "R":
-        headPosition.horizontal++;
-        break;
-    }
+    moveHead(command);
     followHead(i);
   };
   commands.forEach(move);

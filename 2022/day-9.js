@@ -83,7 +83,7 @@ const calculateBestMove = (head, tail) => {
     horizontal: tail.horizontal,
     vertical: tail.vertical + 1,
   };
-  const validMoves = [
+  const possibleMoves = [
     tail, // try current position first.
     topLeftCorner,
     top,
@@ -93,7 +93,8 @@ const calculateBestMove = (head, tail) => {
     bottom,
     bottomLeftCorner,
     left,
-  ].filter(
+  ];
+  const validMoves = possibleMoves.filter(
     (option) =>
       [-1, 0, 1].includes(option.horizontal - head.horizontal) &&
       [-1, 0, 1].includes(option.vertical - head.vertical)

@@ -6,26 +6,32 @@ const initializer = {
   vertical: 0,
 };
 
-const state = {
-  head: {
-    ...initializer,
-  },
-  tail: {
-    ...initializer,
-  },
-  tailTouched: [{ ...initializer }],
-  tails: {
-    0: { ...initializer },
-    1: { ...initializer },
-    2: { ...initializer },
-    3: { ...initializer },
-    4: { ...initializer },
-    5: { ...initializer },
-    6: { ...initializer },
-    7: { ...initializer },
-    8: { ...initializer },
-  },
+let state;
+
+const resetState = () => {
+  state = {
+    head: {
+      ...initializer,
+    },
+    tail: {
+      ...initializer,
+    },
+    tailsTouched: [{ ...initializer }],
+    tails: {
+      0: { ...initializer },
+      1: { ...initializer },
+      2: { ...initializer },
+      3: { ...initializer },
+      4: { ...initializer },
+      5: { ...initializer },
+      6: { ...initializer },
+      7: { ...initializer },
+      8: { ...initializer },
+    },
+  };
 };
+
+resetState();
 
 const parseLine = (acc, command) => {
   const [direction, distance_str] = command.split(" ");
@@ -40,13 +46,13 @@ const commands = lines.reduce(parseLine, []);
 
 const touchTail = (position) => {
   if (
-    !state.tailTouched.find(
+    !state.tailsTouched.find(
       ({ horizontal, vertical }) =>
         horizontal === position.horizontal &&
         vertical === position.vertical
     )
   ) {
-    state.tailTouched.push({ ...position });
+    state.tailsTouched.push({ ...position });
   }
 };
 
@@ -141,27 +147,22 @@ const moveHead = (command) => {
 };
 
 const part1 = () => {
-  state.tailTouched = [{ horizontal: 0, vertical: 0 }];
-  const followHead = () => {
+  resetState();
+  const move = (command) => {
+    moveHead(command);
     const bestMove = calculateBestMove(state.head, state.tail);
     state.tail.horizontal = bestMove.horizontal;
     state.tail.vertical = bestMove.vertical;
     touchTail(state.tail);
   };
-  const move = (command) => {
-    moveHead(command);
-    followHead();
-  };
   commands.forEach((dir) => move(dir));
-  return state.tailTouched.length;
+  return state.tailsTouched.length;
 };
 
 const part2 = () => {
-  state.head.horizontal = 0;
-  state.head.vertical = 0;
-  state.tailTouched = [{ horizontal: 0, vertical: 0 }];
-
-  const followHead = () => {
+  resetState();
+  const move = (command) => {
+    moveHead(command);
     // Move the tail-head relative to the head.
     const bestMove = calculateBestMove(
       state.head,
@@ -181,14 +182,8 @@ const part2 = () => {
     }
     touchTail(state.tails[8]);
   };
-
-  const move = (command) => {
-    moveHead(command);
-    followHead();
-  };
   commands.forEach(move);
-
-  return state.tailTouched.length;
+  return state.tailsTouched.length;
 };
 
 console.log(part1());

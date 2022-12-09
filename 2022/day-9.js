@@ -136,9 +136,7 @@ const move = (command) => {
 
 const part1 = () => {
   state.tailTouched = [{ horizontal: 0, vertical: 0 }];
-  commands.forEach((command) => {
-    move(command);
-  });
+  commands.forEach((dir) => move(dir));
   return state.tailTouched.length;
 };
 

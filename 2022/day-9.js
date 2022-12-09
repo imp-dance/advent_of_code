@@ -1,10 +1,11 @@
 const { data } = require("./data/day-9");
-
 const lines = data.split("\n");
+
 const headPosition = {
   horizontal: 0,
   vertical: 0,
 };
+
 const tailPosition = {
   horizontal: 0,
   vertical: 0,
@@ -12,7 +13,6 @@ const tailPosition = {
 
 const state = {
   tailTouched: [{ ...tailPosition }],
-  headTouched: [{ ...headPosition }],
 };
 
 const parseLine = (acc, command) => {
@@ -22,6 +22,18 @@ const parseLine = (acc, command) => {
     acc.push(direction);
   }
   return acc;
+};
+
+const touchTail = (position) => {
+  if (
+    !state.tailTouched.find(
+      ({ horizontal, vertical }) =>
+        horizontal === position.horizontal &&
+        vertical === position.vertical
+    )
+  ) {
+    state.tailTouched.push({ ...position });
+  }
 };
 
 const commands = lines.reduce(parseLine, []);
@@ -43,14 +55,6 @@ const followHead = () => {
     horizontal: tailPosition.horizontal + 1,
     vertical: tailPosition.vertical + 1,
   };
-  const top = {
-    horizontal: tailPosition.horizontal,
-    vertical: tailPosition.vertical - 1,
-  };
-  const bottom = {
-    horizontal: tailPosition.horizontal,
-    vertical: tailPosition.vertical + 1,
-  };
   const left = {
     horizontal: tailPosition.horizontal - 1,
     vertical: tailPosition.vertical,
@@ -59,7 +63,15 @@ const followHead = () => {
     horizontal: tailPosition.horizontal + 1,
     vertical: tailPosition.vertical,
   };
-  const options = [
+  const top = {
+    horizontal: tailPosition.horizontal,
+    vertical: tailPosition.vertical - 1,
+  };
+  const bottom = {
+    horizontal: tailPosition.horizontal,
+    vertical: tailPosition.vertical + 1,
+  };
+  const validMoves = [
     tailPosition, // try current position first.
     topLeftCorner,
     top,
@@ -69,54 +81,39 @@ const followHead = () => {
     bottom,
     bottomLeftCorner,
     left,
-  ];
-  const withinBounds = [-1, 0, 1];
-  const workingOptions = options.filter(
+  ].filter(
     (option) =>
-      withinBounds.includes(
+      [-1, 0, 1].includes(
         option.horizontal - headPosition.horizontal
       ) &&
-      withinBounds.includes(
+      [-1, 0, 1].includes(
         option.vertical - headPosition.vertical
       )
   );
   if (
-    workingOptions.find(
+    validMoves.find(
       ({ horizontal, vertical }) =>
         horizontal === tailPosition.horizontal &&
         vertical === tailPosition.vertical
     )
   ) {
-    // Staying put is a working option, just do that.
+    // Staying put is a valid option, just do that.
     return;
   }
-  if (workingOptions.length) {
-    const distances = workingOptions.map((option) => {
-      const horizontalDistance = Math.abs(
-        option.horizontal - headPosition.horizontal
-      );
-      const verticalDistance = Math.abs(
-        option.vertical - headPosition.vertical
-      );
-      return horizontalDistance + verticalDistance;
-    });
-    const minDistance = Math.min(...distances);
-    const optimalIndex = distances.findIndex(
-      (distance) => distance === minDistance
-    );
-    const optimal = workingOptions[optimalIndex];
-    tailPosition.horizontal = optimal.horizontal;
-    tailPosition.vertical = optimal.vertical;
-  }
-  if (
-    !state.tailTouched.find(
-      ({ horizontal, vertical }) =>
-        horizontal === tailPosition.horizontal &&
-        vertical === tailPosition.vertical
-    )
-  ) {
-    state.tailTouched.push({ ...tailPosition });
-  }
+
+  const distances = validMoves.map(
+    (option) =>
+      Math.abs(option.horizontal - headPosition.horizontal) +
+      Math.abs(option.vertical - headPosition.vertical)
+  );
+  const minDistance = Math.min(...distances);
+  const optimalIndex = distances.findIndex(
+    (distance) => distance === minDistance
+  );
+  const optimalNextStep = validMoves[optimalIndex];
+  tailPosition.horizontal = optimalNextStep.horizontal;
+  tailPosition.vertical = optimalNextStep.vertical;
+  touchTail(tailPosition);
 };
 
 const move = (command) => {
@@ -134,13 +131,11 @@ const move = (command) => {
       headPosition.horizontal++;
       break;
   }
-  state.headTouched.push(headPosition);
   followHead();
 };
 
 const part1 = () => {
   state.tailTouched = [{ horizontal: 0, vertical: 0 }];
-  state.headTouched = [{ horizontal: 0, vertical: 0 }];
   commands.forEach((command) => {
     move(command);
   });

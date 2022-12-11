@@ -47,20 +47,21 @@ const part2 = () => {
   resetState();
   let currentLineNum = 1;
   cycles.forEach((command, i) => {
-    let add = "";
+    let currentPixelContent = "";
     const cycleNum = i + 1;
     const currentPixelX =
       cycleNum - 40 * (currentLineNum - 1) - 1;
-    if (Math.abs(currentPixelX - state.X) <= 1) {
-      add = "#";
+    const distance = Math.abs(currentPixelX - state.X);
+    if (distance <= 1) {
+      currentPixelContent = "#";
     } else {
-      add = " ";
+      currentPixelContent = " ";
     }
     if (cycleNum % 40 === 0) {
-      add += "\n";
+      currentPixelContent += "\n";
       currentLineNum++;
     }
-    state.drawing += add;
+    state.drawing += currentPixelContent;
     state.X += command === "noop" ? 0 : command;
   });
   return state.drawing;

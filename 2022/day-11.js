@@ -4,6 +4,7 @@ const monkeys = data.split("\n\n");
 let state = {
   is_part_2: false,
 };
+let monkey_list = [];
 
 class Monkey {
   constructor(
@@ -27,22 +28,7 @@ class Monkey {
 
   parse_item(item) {
     if (state.is_part_2) {
-      const [a, operator, b] = this.operation
-        .replaceAll("x", item)
-        .split(" ");
-      switch (operator) {
-        case "+":
-          return BigInt(a) + BigInt(b);
-        case "*":
-          return BigInt(a) * BigInt(b);
-        case "-":
-          return BigInt(a) - BigInt(b);
-        case "/":
-          return BigInt(a) / BigInt(b);
-        case "%":
-          return BigInt(a) % BigInt(b);
-      }
-      return eval(`${a}n ${operator} ${b}n`);
+      return eval(this.operation.replaceAll("x", item));
     }
     return Math.floor(
       eval(this.operation.replaceAll("x", item)) / 3
@@ -50,33 +36,32 @@ class Monkey {
   }
 
   run_test(item) {
-    if (state.is_part_2) {
-      const [a, operator, b] = this.test
-        .replaceAll("x", item)
-        .split(" ");
-      return BigInt(a) % BigInt(b) === 0n;
-    }
-    return eval(this.test.replaceAll("x", item));
+    const [x, op, b] = this.test.split(" ");
+    return parseInt(item) % parseInt(b) === 0;
   }
 
-  inspect_item() {
+  inspect_item(modProd) {
     const item = this.items.shift();
     const new_item = this.parse_item(item);
     this.inspect_count++;
     const isSuccess = this.run_test(new_item);
     const target = isSuccess ? this.on_success : this.on_failure;
-    monkey_list[target].give_item(new_item);
-    return isSuccess;
+    monkey_list[target].give_item(
+      modProd ? new_item % modProd : new_item
+    );
   }
 
   inspect_all() {
+    const modProd = monkey_list.reduce(
+      (prod, monkey) =>
+        prod * parseInt(monkey.test.split(" ")[2]),
+      1
+    ); // did not come up with this on my own, sad to say. I was stuck on part 2 for a while.
     while (this.items.length > 0) {
-      this.inspect_item();
+      this.inspect_item(state.is_part_2 ? modProd : undefined);
     }
   }
 }
-
-let monkey_list = [];
 
 const resetState = () => {
   monkey_list.forEach((monkey) => {
@@ -90,9 +75,7 @@ const resetState = () => {
         data.starting_items = line
           .split(": ")[1]
           .split(", ")
-          .map((item) =>
-            state.is_part_2 ? BigInt(item) : parseInt(item)
-          );
+          .map((item) => parseInt(item));
       }
       if (line.startsWith("Operation")) {
         data.operation = line
@@ -157,19 +140,15 @@ const part1 = () => {
 const part2 = () => {
   state.is_part_2 = true;
   resetState();
-  for (let i = 1; i <= 1000; i++) {
+  for (let i = 1; i <= 10000; i++) {
     for (let monkey = 0; monkey < monkey_list.length; monkey++) {
       monkey_list[monkey].inspect_all();
     }
-    console.log("Round ", i);
   }
   const sorted = [...monkey_list].sort(
     (a, b) => b.inspect_count - a.inspect_count
   );
-  return (
-    BigInt(sorted[0].inspect_count) *
-    BigInt(sorted[1].inspect_count)
-  );
+  return sorted[0].inspect_count * sorted[1].inspect_count;
 };
 
 console.log(part1());

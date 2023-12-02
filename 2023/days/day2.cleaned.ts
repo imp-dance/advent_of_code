@@ -1,9 +1,7 @@
 import { getLines } from "../utils/utils";
 
-const lines = getLines("./day2.input.txt");
-
 type Game = {
-  id: string;
+  id: number;
   hasAtleast: {
     blue: number;
     green: number;
@@ -11,22 +9,24 @@ type Game = {
   };
 };
 
-function parseLines(): Game[] {
-  return lines.map((line) => {
-    const [gameId, gameInfo] = line.split(":");
+function parseValue(input: string) {
+  const [value, name] = input.trim().split(" ");
+  return {
+    type: name as "red" | "green" | "blue",
+    count: parseInt(value),
+  };
+}
 
+function parseGameInput(): Game[] {
+  return getLines("./day2.input.txt").map((line) => {
+    const [gameId, gameInfo] = line.split(":");
+    const valueBuckets = gameInfo.split(";");
     return {
-      id: gameId,
-      hasAtleast: gameInfo.split(";").reduce(
+      id: parseInt(gameId.replace("Game ", "")),
+      hasAtleast: valueBuckets.reduce(
         (acc, bucket) => {
-          const items = bucket.split(",").map((item) => {
-            const [value, name] = item.trim().split(" ");
-            return {
-              type: name as "red" | "green" | "blue",
-              count: parseInt(value),
-            };
-          });
-          items.forEach((item) => {
+          const values = bucket.split(",").map(parseValue);
+          values.forEach((item) => {
             if (item.count > acc[item.type]) {
               acc[item.type] = item.count;
             }
@@ -39,7 +39,7 @@ function parseLines(): Game[] {
   });
 }
 
-const games = parseLines();
+const games = parseGameInput();
 
 export function part1() {
   return games
@@ -50,8 +50,8 @@ export function part1() {
         game.hasAtleast.red <= 12
     )
     .map((game) => game.id)
-    .reduce((acc, gameId) => {
-      return acc + parseInt(gameId.split(" ")[1]);
+    .reduce((acc, id) => {
+      return acc + id;
     }, 0);
 }
 

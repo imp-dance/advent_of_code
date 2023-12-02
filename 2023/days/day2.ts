@@ -55,7 +55,6 @@ export function part2() {
   const powers: number[] = [];
 
   games.forEach((game) => {
-    let possible = true;
     const highestCount = {
       blue: 0,
       green: 0,

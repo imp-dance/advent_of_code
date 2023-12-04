@@ -91,7 +91,6 @@ function part2() {
             const targetNumber = numbers[character.pos.row].find(
               (number) => {
                 const col = number.index;
-                const row = character.pos.row;
                 const length = number.value.toString().length;
                 const range = [col, col + length];
                 return (

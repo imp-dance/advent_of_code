@@ -1,13 +1,23 @@
 import fs from "fs";
 import path from "path";
+import { URL } from "url";
+
+const dirname = new URL(".", import.meta.url).pathname;
 
 export const getLines = (filePath: string) => {
   return fs
     .readFileSync(
-      path.join(__dirname, "../days", filePath),
+      path.join(dirname, "../days", filePath),
       "utf8"
     )
     .split("\n");
+};
+
+export const getText = (filePath: string) => {
+  return fs.readFileSync(
+    path.join(__dirname, "../days", filePath),
+    "utf8"
+  );
 };
 
 export function matchAllWithIndex(str: string, regex: RegExp) {
@@ -65,4 +75,98 @@ export function getAdjacentIndices(
     topRight
   );
   return adjacentIndices;
+}
+
+export const arrayRange = (
+  start: number,
+  stop: number,
+  step: number = 1
+) =>
+  Array.from(
+    { length: (stop - start) / step + 1 },
+    (value, index) => start + index * step
+  );
+
+export function pushToIndex<T>(
+  arr: T[],
+  index: number,
+  value: T
+) {
+  return arr.splice(index, 0, value);
+}
+
+export function combineArrays(array_of_arrays: Array<string>[]) {
+  if (!array_of_arrays) {
+    return [];
+  }
+  if (!Array.isArray(array_of_arrays)) {
+    return [];
+  }
+  if (array_of_arrays.length == 0) {
+    return [];
+  }
+  for (let i = 0; i < array_of_arrays.length; i++) {
+    if (
+      !Array.isArray(array_of_arrays[i]) ||
+      array_of_arrays[i].length == 0
+    ) {
+      return [];
+    }
+  }
+
+  let odometer = new Array(array_of_arrays.length);
+  odometer.fill(0);
+  let output = [];
+  let newCombination = formCombination(
+    odometer,
+    array_of_arrays
+  );
+  output.push(newCombination);
+  while (odometer_increment(odometer, array_of_arrays)) {
+    newCombination = formCombination(odometer, array_of_arrays);
+    output.push(newCombination);
+  }
+  return output;
+}
+
+function formCombination(
+  odometer: any[],
+  array_of_arrays: Array<any>[]
+) {
+  return odometer.reduce(function (
+    accumulator,
+    odometer_value,
+    odometer_index
+  ) {
+    return (
+      "" +
+      accumulator +
+      array_of_arrays[odometer_index][odometer_value]
+    );
+  },
+  "");
+}
+
+function odometer_increment(
+  odometer: any[],
+  array_of_arrays: Array<any>[]
+) {
+  for (
+    let i_odometer_digit = odometer.length - 1;
+    i_odometer_digit >= 0;
+    i_odometer_digit--
+  ) {
+    let maxee = array_of_arrays[i_odometer_digit].length - 1;
+    if (odometer[i_odometer_digit] + 1 <= maxee) {
+      odometer[i_odometer_digit]++;
+      return true;
+    } else {
+      if (i_odometer_digit - 1 < 0) {
+        return false;
+      } else {
+        odometer[i_odometer_digit] = 0;
+        continue;
+      }
+    }
+  }
 }

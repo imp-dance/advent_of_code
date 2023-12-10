@@ -1,5 +1,8 @@
 import fs from "fs";
+import path from "path";
+import { URL } from "url";
 import { getLines } from "../utils/utils.js";
+const dirname = new URL(".", import.meta.url).pathname;
 const lines = getLines("./day10.input.txt");
 // grid[row][col]
 const grid = [];
@@ -129,12 +132,12 @@ function getPart1Answer() {
     step([
         S_START_POS,
         calculateNextGridItem(S_START_POS, paths[0]).pos,
-    ], (path) => {
-        fs.writeFileSync("/Users/hakonunderbakke/Documents/Projects/advent_of_code/2023/days/day10.path.txt", JSON.stringify(path));
+    ], (fullPath) => {
+        fs.writeFileSync(path.join(dirname, "day10.path.txt"), JSON.stringify(fullPath));
         console.log("Wrote file");
     });
 }
 // Part 1 answer: 13546 (total length of path) / 2 = 6773
-const loopPathRaw = fs.readFileSync("/Users/hakonunderbakke/Documents/Projects/advent_of_code/2023/days/day10.path.txt", "utf8");
+const loopPathRaw = fs.readFileSync(path.join(dirname, "day10.path.txt"), "utf8");
 const loopPath = JSON.parse(loopPathRaw);
 console.log("Looppath:", loopPath.length, loopPath[loopPath.length - 1], "->", loopPath[0]);

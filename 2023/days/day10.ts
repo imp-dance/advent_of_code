@@ -15,7 +15,7 @@ lines.forEach((row) => {
 
 type Position = [number, number];
 
-const connectionMap: Record<string, Position[]> = {
+const mutationMap: Record<string, Position[]> = {
   "|": [
     [-1, 0],
     [1, 0],
@@ -49,24 +49,24 @@ const connectionMap: Record<string, Position[]> = {
   ],
 };
 
-const calculateNextGridItem = (
-  pos: Position,
-  mutation: Position
-) => {
+const getCharacter = (row: number, col: number) =>
+  grid[row]?.[col] ?? ".";
+
+const runMutation = (pos: Position, mutation: Position) => {
   const nextRow = pos[0] + mutation[0];
   const nextCol = pos[1] + mutation[1];
   return {
-    character: grid[nextRow]?.[nextCol] ?? ".",
+    character: getCharacter(nextRow, nextCol),
     pos: [nextRow, nextCol] as Position,
   };
 };
 
 const getNextMutations = (pos: Position, prevPos: Position) => {
-  const character = grid[pos[0]]?.[pos[1]] ?? ".";
+  const character = getCharacter(pos[0], pos[1]);
   if (character === ".") {
     return [];
   }
-  const mutation = connectionMap[character];
+  const mutation = mutationMap[character];
   if (character !== "S") {
     const [prevRow, prevCol] = prevPos;
     const [row, col] = pos;
@@ -85,18 +85,15 @@ const getNextMutations = (pos: Position, prevPos: Position) => {
   const possibleNextPositions: Position[] = [];
 
   for (const mutate of mutation) {
-    const itemToMoveTo = calculateNextGridItem(pos, mutate);
+    const itemToMoveTo = runMutation(pos, mutate);
     const moveConnectionType =
-      connectionMap[itemToMoveTo.character];
+      mutationMap[itemToMoveTo.character];
 
     if (
       moveConnectionType.find((nextMut) => {
         // check if mutation takes us to a grid-space
         // on which we can get back. (connected both ways)
-        const nextItem = calculateNextGridItem(
-          itemToMoveTo.pos,
-          nextMut
-        );
+        const nextItem = runMutation(itemToMoveTo.pos, nextMut);
         if (
           nextItem.pos[0] === pos[0] &&
           nextItem.pos[1] === pos[1]
@@ -129,9 +126,11 @@ function step(
   const currentPosition = path[path.length - 1];
   const lastPosition = path[path.length - 2];
   const nextPossibleMutations =
-    connectionMap[grid[currentPosition[0]][currentPosition[1]]];
+    mutationMap[
+      getCharacter(currentPosition[0], currentPosition[1])
+    ];
 
-  // from 0 to 1 would become -1, since we want to block the reverse
+  // from 0 to 1 would become -1, since we want to block the reverse next
   // from 1 to 0 would become 1, ---||---
   const rowChange = (lastPosition[0] ?? 0) - currentPosition[0];
   const colChange = (lastPosition[1] ?? 0) - currentPosition[1];
@@ -142,7 +141,6 @@ function step(
       ([row, col]) => row === rowChange && col === colChange
     )
   ) {
-    //
     return [];
   }
 
@@ -152,13 +150,13 @@ function step(
       ? nextPossibleMutations[1] // don't go back to last position
       : nextPossibleMutations[0];
 
-  const nextGridItem = calculateNextGridItem(
+  const nextGridItem = runMutation(
     currentPosition,
     nextMutation
   );
 
   if (nextGridItem.character !== "S") {
-    // Keep going
+    // Keep going, but prevent stack overflow by letting go of this call stack
     setTimeout(
       () => step([...path, nextGridItem.pos], onHitEnd),
       0
@@ -166,20 +164,16 @@ function step(
   } else if (nextGridItem.character === "S") {
     // Hit end
     onHitEnd([...path, nextGridItem.pos]);
-  } else {
-    // dead end / sub-loop
-    return [];
   }
+  // dead end / sub-loop
+  return [];
 }
 
 const paths = getNextMutations(S_START_POS, S_START_POS);
 
 function getPart1Answer() {
   step(
-    [
-      S_START_POS,
-      calculateNextGridItem(S_START_POS, paths[0]).pos,
-    ],
+    [S_START_POS, runMutation(S_START_POS, paths[0]).pos],
     (fullPath) => {
       fs.writeFileSync(
         path.join(dirname, "day10.path.txt"),
@@ -195,11 +189,47 @@ const loopPathRaw = fs.readFileSync(
   path.join(dirname, "day10.path.txt"),
   "utf8"
 );
-const loopPath = JSON.parse(loopPathRaw);
-console.log(
-  "Looppath:",
-  loopPath.length,
-  loopPath[loopPath.length - 1],
-  "->",
-  loopPath[0]
-);
+const loopPath = JSON.parse(loopPathRaw) as Position[];
+
+const prettyMap: Record<string, string> = {
+  "|": "│",
+  "-": "─",
+  L: "└",
+  J: "┘",
+  "7": "┐",
+  F: "┌",
+  ".": ".",
+  S: "S",
+};
+
+let diagram = "";
+grid.forEach((columns, rowIndex) => {
+  let diagramRow = "";
+  columns.forEach((_, i) => {
+    const match = loopPath.find(
+      (v) => v[0] === rowIndex && v[1] === i
+    );
+    if (S_START_POS[0] === rowIndex && S_START_POS[1] === i) {
+      diagramRow += "S";
+    } else if (match) {
+      diagramRow += prettyMap[grid[rowIndex][i]];
+    } else {
+      diagramRow += ".";
+    }
+  });
+  diagram += diagramRow + "\n";
+});
+
+loopPath.forEach(() => {});
+
+fs.writeFileSync(path.join(dirname, "day10.viz.txt"), diagram);
+
+// part 2
+const startPosForDot = runMutation(S_START_POS, [-1, 0]);
+const dotPath: Position[] = [startPosForDot.pos];
+const possibleDotMutations = mutationMap["S"];
+let noPossibleOptionsLeft = false;
+function dotTravel() {
+  const currentPath = dotPath[dotPath.length - 1];
+  // ...
+}

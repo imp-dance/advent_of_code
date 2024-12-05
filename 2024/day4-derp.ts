@@ -144,7 +144,6 @@ function part1() {
     currentDiagonalRl = rlUpdates.currentDiagonalRl;
     diagonalStateRl = rlUpdates.diagonalStateRl;
   }
-  console.log([...lrDiagonals, ...rlDiagonals]);
   const horizontals = chunkUp(
     horizontalPattern.filter(Boolean) as string[],
     horizontalLength

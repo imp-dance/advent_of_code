@@ -13,7 +13,6 @@ for (let i = 0; i < horizontalLength * verticalLength; i++) {
   if (letter === "X") {
     const horiMatches = searchHorizontally(currentY, currentX);
     const diagMatches = searchDiagonally(currentY, currentX);
-    console.log(diagMatches);
     matches += [
       horiMatches,
       searchVertically(currentY, currentX),
@@ -21,6 +20,8 @@ for (let i = 0; i < horizontalLength * verticalLength; i++) {
     ].reduce((acc, item) => acc + item, 0);
   }
 }
+
+console.log(matches);
 
 function searchHorizontally(y: number, x: number): number {
   const texts = [
@@ -62,7 +63,6 @@ function searchDiagonally(y: number, x: number): number {
       grid[y - 2]?.[x - 2]
     }${grid[y - 3]?.[x - 3]}`,
   ];
-  console.log(diag);
   return diag.filter(
     (item) => item === "XMAS" || item === "SAMX"
   ).length;

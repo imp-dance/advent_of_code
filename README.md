@@ -31,7 +31,7 @@
                        '---'--'---'
 ```
 
-My collection of Advent of Code solutions. Written in Javascript.
+My collection of Advent of Code solutions. Written in Javascript & Typescript.
 
 ## Structure
 
@@ -53,3 +53,12 @@ $ node 2022/day-3.js
 > 7742 # part 1 solution
 > 2276 # part 2 solution
 ```
+
+Or for typescript files:
+```bash
+$ cd 2025
+$ node ./day-1.ts --experimental-strip-types
+> 123 # part 1 solution
+> 789 # part 2 solution
+```
+

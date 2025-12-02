@@ -17,19 +17,19 @@ const idRanges = input.split(",").map((range) => {
 
 const checkRange = (
   range: Range,
-  passesCheck: (id: number) => boolean
+  checker: (id: number) => boolean
 ) => {
   let currentId = range.start;
   const passedIds = [];
   while (currentId <= range.end) {
-    const isInvalid = passesCheck(currentId);
+    const isInvalid = checker(currentId);
     if (isInvalid) passedIds.push(currentId);
     currentId = currentId + 1;
   }
   return passedIds;
 };
 
-const idIsInvalidPart1 = (id: number) => {
+const checkIDPart1 = (id: number) => {
   const asString = id.toString();
   if (asString.length % 2 === 0) {
     const firstHalf = asString.substring(0, asString.length / 2);
@@ -39,61 +39,63 @@ const idIsInvalidPart1 = (id: number) => {
   return false;
 };
 
-const idIsInvalidPart2 = (id: number) => {
+const checkIDPart2 = (id: number) => {
   const asString = id.toString();
   const chars = asString.split("");
   let currentSequence: string[] = [];
-  let isInvalid = false;
-  chars.every((char, i) => {
+
+  const isInvalid = !chars.every((char, i) => {
     if (!currentSequence.length) {
-      currentSequence.push(char);
-      return true; // keep looping
+      currentSequence.push(char); // start sequence
+      return true;
     }
-    if (
-      currentSequence.join("") ===
-        chars.slice(i, i + currentSequence.length).join("") &&
-      chars.length % currentSequence.length === 0
-    ) {
-      // matching sequence
-      // now we check if its _only_ the matching sequence
-      const currentSequenceToCheck = currentSequence.join("");
+    const currentSequenceStr = currentSequence.join("");
+    const nextSequenceStr = chars
+      .slice(i, i + currentSequence.length)
+      .join("");
+
+    const repeatsAtleastOnce =
+      currentSequenceStr === nextSequenceStr;
+    const canRepeatUntilEnd =
+      chars.length % currentSequence.length === 0;
+
+    if (repeatsAtleastOnce && canRepeatUntilEnd) {
       const timesToRepeat =
         chars.length / currentSequence.length;
-      if (
-        currentSequenceToCheck.repeat(timesToRepeat) ===
-        id.toString()
-      ) {
-        isInvalid = true;
-        return false; // quit out
-      } else {
-        currentSequence.push(char);
-        return true; // keep looping
+      const sequenceFullyRepeated =
+        currentSequenceStr.repeat(timesToRepeat);
+
+      if (sequenceFullyRepeated === id.toString()) {
+        return false; // ID is a looping sequence
       }
-    } else {
-      currentSequence.push(char);
     }
-    return true; // keep looping
+
+    currentSequence.push(char); // keep building sequence
+    return true;
   });
 
   return isInvalid;
 };
 
 const part1 = () => {
-  const invalidIds: number[] = [];
-  idRanges.forEach((range) => {
-    const currentInvalids = checkRange(range, idIsInvalidPart1);
-    currentInvalids.forEach((id) => invalidIds.push(id));
-  });
-  return invalidIds.reduce((acc, v) => acc + v, 0);
+  const invalidIds = idRanges
+    .map((range) => checkRange(range, checkIDPart1))
+    .flat();
+
+  return sum(invalidIds);
 };
 
 const part2 = () => {
-  const invalidIds: number[] = [];
-  idRanges.forEach((range) => {
-    const currentInvalids = checkRange(range, idIsInvalidPart2);
-    currentInvalids.forEach((id) => invalidIds.push(id));
-  });
-  return invalidIds.reduce((acc, v) => acc + v, 0);
+  const invalidIds = idRanges
+    .map((range) => checkRange(range, checkIDPart2))
+    .flat();
+  return sum(invalidIds);
 };
 
-console.log(part2());
+console.time("Time");
+console.log({ part1: part1(), part2: part2() });
+console.timeEnd("Time");
+
+function sum(nums: number[]) {
+  return nums.reduce((acc, n) => acc + n, 0);
+}

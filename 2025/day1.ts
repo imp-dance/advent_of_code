@@ -20,17 +20,17 @@ const resetState = () => {
 
 const part1 = () => {
   resetState();
-  let timesHitOne = 0;
+  let password = 0;
   lines.forEach(([direction, degrees]) => {
     turn(direction, degrees);
-    if (state.num === 0) timesHitOne++;
+    if (state.num === 0) password++;
   });
-  return timesHitOne;
+  return password;
 };
 
 const part2 = () => {
   resetState();
-  let timesPassedOne = 0;
+  let password = 0;
   lines.forEach(([direction, degrees]) => {
     let passedAtleast = Math.floor(degrees / 100);
     const rest = degrees % 100;
@@ -43,11 +43,11 @@ const part2 = () => {
     ) {
       passedAtleast += 1;
     }
-    timesPassedOne += passedAtleast;
+    password += passedAtleast;
     turn(direction, degrees);
-    if (state.num === 0) timesPassedOne += 1;
+    if (state.num === 0) password += 1;
   });
-  return timesPassedOne;
+  return password;
 };
 
 console.log({ part1: part1(), part2: part2() });

@@ -19,12 +19,9 @@ const checkRange = (
   range: Range,
   checker: (id: number) => boolean
 ) => {
-  let currentId = range.start;
   const passedIds = [];
-  while (currentId <= range.end) {
-    const isInvalid = checker(currentId);
-    if (isInvalid) passedIds.push(currentId);
-    currentId = currentId + 1;
+  for (let id = range.start; id <= range.end; id++) {
+    if (checker(id)) passedIds.push(id);
   }
   return passedIds;
 };
@@ -42,20 +39,21 @@ const checkIDPart1 = (id: number) => {
 const checkIDPart2 = (id: number) => {
   const asString = id.toString();
   const chars = asString.split("");
-  let currentSequence: string[] = [];
+  let currentSequence = "";
 
   const isInvalid = !chars.every((char, i) => {
     if (!currentSequence.length) {
-      currentSequence.push(char); // start sequence
+      currentSequence += char; // start sequence
       return true;
     }
-    const currentSequenceStr = currentSequence.join("");
-    const nextSequenceStr = chars
-      .slice(i, i + currentSequence.length)
-      .join("");
+
+    const nextSequenceStr = asString.substring(
+      i,
+      i + currentSequence.length
+    );
 
     const repeatsAtleastOnce =
-      currentSequenceStr === nextSequenceStr;
+      currentSequence === nextSequenceStr;
     const canRepeatUntilEnd =
       chars.length % currentSequence.length === 0;
 
@@ -63,14 +61,14 @@ const checkIDPart2 = (id: number) => {
       const timesToRepeat =
         chars.length / currentSequence.length;
       const sequenceFullyRepeated =
-        currentSequenceStr.repeat(timesToRepeat);
+        currentSequence.repeat(timesToRepeat);
 
       if (sequenceFullyRepeated === id.toString()) {
         return false; // ID is a looping sequence
       }
     }
 
-    currentSequence.push(char); // keep building sequence
+    currentSequence += char; // keep building sequence
     return true;
   });
 
@@ -89,6 +87,7 @@ const part2 = () => {
   const invalidIds = idRanges
     .map((range) => checkRange(range, checkIDPart2))
     .flat();
+
   return sum(invalidIds);
 };
 

@@ -1,5 +1,7 @@
 import { readFileSync } from "fs";
 
+console.time("Time");
+
 const input = readFileSync("./day2.input.txt", "utf-8");
 
 type Range = {
@@ -47,13 +49,14 @@ const checkIDPart2 = (id: number) => {
       return true;
     }
 
-    const nextSequenceStr = asString.substring(
+    const followingSequence = asString.substring(
       i,
       i + currentSequence.length
     );
 
     const repeatsAtleastOnce =
-      currentSequence === nextSequenceStr;
+      currentSequence === followingSequence;
+
     const canRepeatUntilEnd =
       chars.length % currentSequence.length === 0;
 
@@ -91,7 +94,6 @@ const part2 = () => {
   return sum(invalidIds);
 };
 
-console.time("Time");
 console.log({ part1: part1(), part2: part2() });
 console.timeEnd("Time");
 

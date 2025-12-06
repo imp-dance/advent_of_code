@@ -43,7 +43,6 @@ const runOperation = (nums: number[], operator: "+" | "*") => {
 const part1 = () => {
   const sum = data.calculations.reduce((acc, nums, index) => {
     const result = runOperation(nums, data.operators[index]);
-    console.log(nums.join(data.operators[index]), result);
     acc += result;
     return acc;
   }, 0);

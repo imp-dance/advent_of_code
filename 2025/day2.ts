@@ -17,18 +17,18 @@ const idRanges = input.split(",").map((range) => {
   };
 });
 
-const checkRange = (
+const testRange = (
   range: Range,
-  checker: (id: number) => boolean
+  tester: (id: number) => boolean
 ) => {
   const passedIds = [];
   for (let id = range.start; id <= range.end; id++) {
-    if (checker(id)) passedIds.push(id);
+    if (tester(id)) passedIds.push(id);
   }
   return passedIds;
 };
 
-const checkIDPart1 = (id: number) => {
+const idIsInvalidPart1 = (id: number) => {
   const asString = id.toString();
   if (asString.length % 2 === 0) {
     const firstHalf = asString.substring(0, asString.length / 2);
@@ -38,40 +38,42 @@ const checkIDPart1 = (id: number) => {
   return false;
 };
 
-const checkIDPart2 = (id: number) => {
+const idIsInvalidPart2 = (id: number) => {
   const asString = id.toString();
   const chars = asString.split("");
-  let currentSequence = "";
+  let sequenceAccumulator = "";
 
+  // Array.every is used to break out of loop when done.
+  // It's not very intuitive but returning `false` breaks the loop.
   const isInvalid = !chars.every((char, i) => {
-    if (!currentSequence.length) {
-      currentSequence += char; // start sequence
-      return true;
+    if (sequenceAccumulator.length === 0) {
+      sequenceAccumulator += char;
+      return true; // continue
     }
 
     const followingSequence = asString.substring(
       i,
-      i + currentSequence.length
+      i + sequenceAccumulator.length
     );
 
     const repeatsAtleastOnce =
-      currentSequence === followingSequence;
+      sequenceAccumulator === followingSequence;
 
     const canRepeatUntilEnd =
-      chars.length % currentSequence.length === 0;
+      chars.length % sequenceAccumulator.length === 0;
 
     if (repeatsAtleastOnce && canRepeatUntilEnd) {
       const timesToRepeat =
-        chars.length / currentSequence.length;
+        chars.length / sequenceAccumulator.length;
       const sequenceFullyRepeated =
-        currentSequence.repeat(timesToRepeat);
+        sequenceAccumulator.repeat(timesToRepeat);
 
       if (sequenceFullyRepeated === id.toString()) {
-        return false; // ID is a looping sequence
+        return false; // ID is a looping sequence, stop looping
       }
     }
 
-    currentSequence += char; // keep building sequence
+    sequenceAccumulator += char; // keep building sequence
     return true;
   });
 
@@ -80,7 +82,7 @@ const checkIDPart2 = (id: number) => {
 
 const part1 = () => {
   const invalidIds = idRanges
-    .map((range) => checkRange(range, checkIDPart1))
+    .map((range) => testRange(range, idIsInvalidPart1))
     .flat();
 
   return sum(invalidIds);
@@ -88,7 +90,7 @@ const part1 = () => {
 
 const part2 = () => {
   const invalidIds = idRanges
-    .map((range) => checkRange(range, checkIDPart2))
+    .map((range) => testRange(range, idIsInvalidPart2))
     .flat();
 
   return sum(invalidIds);

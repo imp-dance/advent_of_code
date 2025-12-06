@@ -14,6 +14,10 @@ export function moveUntilOob<T>(
   );
 }
 
+export function copyGrid<T>(grid: Grid<T>): Grid<T> {
+  return [...grid.map((row) => [...row])];
+}
+
 export function createGrid<T>(
   input: string,
   parsePoint?: (v: string) => T

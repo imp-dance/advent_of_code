@@ -128,8 +128,7 @@ function part2() {
   return sumRanges(ranges);
 }
 
-const res = part2();
-expect(res).toBe(346240317247002);
+expect(part2()).toBe(346240317247002);
 
 function rangesOverlap(a: Range, b: Range): boolean {
   return !(a.end <= b.start || b.end <= a.start);

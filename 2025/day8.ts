@@ -1,6 +1,8 @@
+import { Presets, SingleBar } from "cli-progress";
 import { readFileSync } from "fs";
 import { expect } from "utils/test";
 
+const progressBar = new SingleBar({}, Presets.rect);
 const input = readFileSync("./day8.input.txt", "utf-8");
 type JunctionBox = {
   id: string;
@@ -10,15 +12,23 @@ type JunctionBox = {
   connections: string[];
 };
 
+const cache: Record<string, number> = {};
+
 const calculateEuclidianDistance = (
   a: JunctionBox,
   b: JunctionBox
 ) => {
-  return Math.sqrt(
+  const key = [a.id, b.id].sort().join("-");
+  if (cache[key]) {
+    return cache[key];
+  }
+  const result = Math.sqrt(
     Math.pow(b.x - a.x, 2) +
       Math.pow(b.y - a.y, 2) +
       Math.pow(b.z - a.z, 2)
   );
+  cache[key] = result;
+  return result;
 };
 
 let idIncr = 0;
@@ -49,14 +59,12 @@ const findSmallestDistance = (
 
   junctionBoxes.forEach((p, i) => {
     const distances = junctionBoxes
-      .filter((b, bi) => i !== bi)
-      .filter((b) => extraCondition?.(p, b) ?? true)
+      .filter(
+        (b, bi) => i !== bi && (extraCondition?.(p, b) ?? true)
+      )
       .map((b) => ({
         amount: calculateEuclidianDistance(p, b),
-        points: [p, b].sort(sortJuncitonBoxes) as [
-          JunctionBox,
-          JunctionBox
-        ],
+        points: [p, b] as [JunctionBox, JunctionBox],
       }))
       .sort((a, b) => a.amount - b.amount);
     if (distances[0].amount < (smallest?.amount ?? Infinity)) {
@@ -69,8 +77,15 @@ const findSmallestDistance = (
 
 type Circuit = JunctionBox[];
 
+console.log(
+  "Strap in, doing insane amounts of unoptimized calculations"
+);
+progressBar.start(1000, 0);
+
 let iterator = 0;
 while (iterator < 1000) {
+  if (iterator === 500) console.log("About halfway...");
+  progressBar.update(iterator);
   iterator++;
   const distance = findSmallestDistance(
     (a, b) =>
@@ -108,24 +123,4 @@ expect(
     .sort((a, b) => b.length - a.length)
     .slice(0, 3)
     .reduce((acc, circuit) => acc * circuit.length, 1)
-).toBe(40);
-
-function sortJuncitonBoxes(a: JunctionBox, b: JunctionBox) {
-  const zero = {
-    x: 0,
-    y: 0,
-    z: 0,
-  };
-  return (
-    calculateEuclidianDistance(a, {
-      ...zero,
-      connections: [],
-      id: "",
-    }) -
-    calculateEuclidianDistance(b, {
-      ...zero,
-      connections: [],
-      id: "",
-    })
-  );
-}
+).toBe(68112);

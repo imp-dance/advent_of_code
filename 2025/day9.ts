@@ -3,7 +3,6 @@ import { expect } from "utils/test";
 
 const input = readFileSync("./day9.input.txt", "utf8");
 
-let id = 0;
 const tiles = input
   .split("\n")
   .filter(Boolean)
@@ -12,30 +11,23 @@ const tiles = input
       .split(",")
       .map((v) => v.trim())
       .map((v) => parseInt(v));
-    id++;
+
     return {
-      col: col,
-      row: row,
-      id,
+      col,
+      row,
     };
   });
 
-const areaCache = new Map<string, number>();
-
-tiles.forEach((a, ai) => {
+const areas = tiles.reduce((acc, a, ai) => {
   tiles.forEach((b, bi) => {
     if (ai === bi) return;
-    const key = [a.id, b.id].sort().join("-");
-
     const w = Math.abs(a.col - b.col) + 1;
     const h = Math.abs(a.row - b.row) + 1;
-
-    areaCache.set(key, w * h);
+    acc.push(w * h);
   });
-});
+  return acc;
+}, [] as number[]);
 
-const largestArea = [...areaCache.values()].sort(
-  (a, b) => b - a
-)[0];
+const [largestArea] = areas.sort((a, b) => b - a);
 
 expect(largestArea).toBe(4735222687);

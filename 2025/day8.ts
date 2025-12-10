@@ -118,6 +118,8 @@ junctionBoxes.forEach((junctionBox) => {
   }
 });
 
+progressBar.stop();
+
 expect(
   circuits
     .sort((a, b) => b.length - a.length)
